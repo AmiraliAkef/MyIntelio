@@ -1,23 +1,55 @@
 <!DOCTYPE html>
-<html>
-<head><title>Amirali AI</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amirali Akef | AI Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-    <div id="chatbox"></div>
-    <input type="text" id="userInput">
-    <button onclick="askAI()">Send</button>
+    <!-- Landing Overlay -->
+    <div id="landing" class="landing-overlay">
+        <div class="landing-content">
+            <h1 id="landing-name">
+                <span id="first-name">Amirali</span> <span id="last-name">Akef</span>
+            </h1>
+            <p>Tap to interact with my AI</p>
+        </div>
+    </div>
 
-    <script>
-        async function askAI() {
-            const input = document.getElementById('userInput').value;
-            // The Fetch connects the front to the back endpoint
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({question: input})
-            });
-            const data = await res.json();
-            document.getElementById('chatbox').innerHTML += `<p>${data.answer}</p>`;
-        }
-    </script>
+    <!-- Main Chat Interface -->
+    <div class="chat-wrapper blurred">
+        <header class="chat-header">
+            <p>AI Portfolio Assistant</p>
+            <!-- Target for the "Amirali" name animation -->
+            <div id="header-name-target" class="header-name"></div>
+        </header>
+
+        <main class="chat-container">
+            <div id="chatbox" class="chatbox">
+                <!-- Initial bot message -->
+                <div class="chat-row bot">
+                    <div class="avatar">AI</div>
+                    <div class="content">Hello! I'm Amirali's AI. Ask me about my projects, skills, or experience.</div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <input type="text" id="userInput" placeholder="Type your message..." autocomplete="off">
+                    <button id="sendBtn">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <footer class="chat-footer">
+                    <a href="/data/Amirali_Resume.pdf" target="_blank">Download Resume</a>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
