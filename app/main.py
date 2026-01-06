@@ -9,7 +9,7 @@ app = FastAPI()
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     answer =  await  chat_with_amirali(request.question)
-    return {"answer": answer}
+    return answer
 
 # THE VIEW: This serves your HTML/CSS/JS files
 # 'html=True' means it will automatically show index.html at http://localhost:8000

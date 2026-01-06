@@ -28,4 +28,4 @@ async def chat_with_amirali(theQuestoin: str):
         {'role': 'user', 'content': theQuestoin},
     ])
 
-    return response['message']['content']
+    return {"answer": response['message']['content']}
