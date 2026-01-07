@@ -34,9 +34,10 @@ body {
     inset: 0;
     z-index: 100;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    background: radial-gradient(circle at center, #111 0%, #000 100%);
+    padding-left: 10%;
+    background: radial-gradient(circle at left center, #0a0a1a 0%, #000 100%);
     cursor: pointer;
     transition: opacity 0.8s ease, visibility 0.8s;
 }
@@ -44,17 +45,70 @@ body {
 .landing-overlay.hidden {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+}
+
+.landing-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 #landing-name {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 600;
     letter-spacing: -0.04em;
+    color: #ffffff;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 40px rgba(255, 255, 255, 0.2);
+    animation: neonPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neonPulse {
+    from {
+        text-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.8),
+            0 0 20px rgba(255, 255, 255, 0.6),
+            0 0 30px rgba(255, 255, 255, 0.4),
+            0 0 40px rgba(255, 255, 255, 0.2);
+    }
+    to {
+        text-shadow: 
+            0 0 5px rgba(255, 255, 255, 0.9),
+            0 0 10px rgba(255, 255, 255, 0.7),
+            0 0 15px rgba(255, 255, 255, 0.5),
+            0 0 20px rgba(255, 255, 255, 0.3),
+            0 0 35px rgba(255, 255, 255, 0.2),
+            0 0 40px rgba(255, 255, 255, 0.1);
+    }
+}
+
+#first-name {
+    display: inline-block;
 }
 
 #last-name {
-    transition: filter 0.8s ease, opacity 0.8s ease;
     display: inline-block;
+    color: #ffffff;
+    text-shadow: 
+        0 0 10px rgba(255, 255, 255, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.4);
+    transition: filter 0.8s ease, opacity 0.8s ease;
+}
+
+.landing-content p {
+    color: #ffffff;
+    font-size: 1rem;
+    text-shadow: 
+        0 0 5px rgba(255, 255, 255, 0.7),
+        0 0 10px rgba(255, 255, 255, 0.5);
+    opacity: 0.9;
+    animation: neonPulse 2s ease-in-out infinite alternate;
+    animation-delay: 0.5s;
 }
 
 .blur-out {
@@ -70,12 +124,16 @@ body {
     display: flex;
     flex-direction: column;
     padding: 0 20px;
-    transition: filter 1s ease, transform 1s ease;
+    transition: filter 1s ease, transform 1s ease, opacity 1s ease;
+    position: relative;
+    z-index: 1;
+    opacity: 1;
 }
 
 .chat-wrapper.blurred {
     filter: blur(40px);
     transform: scale(0.95);
+    opacity: 0.3;
 }
 
 .chat-header {
@@ -92,6 +150,16 @@ body {
     font-weight: 600;
     font-size: 1.2rem;
     letter-spacing: -0.02em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: #ffffff;
+    text-shadow: 
+        0 0 5px rgba(255, 255, 255, 0.7),
+        0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.header-name.visible {
+    opacity: 1;
 }
 
 .chat-header p {
@@ -99,10 +167,20 @@ body {
     font-size: 0.8rem;
 }
 
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
 /* ChatGPT Style Rows */
 .chatbox {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     scrollbar-width: none;
     padding-bottom: 20px;
 }
@@ -148,6 +226,48 @@ body {
     color: #e5e7eb;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* Markdown styling within bot content */
+.chat-row.bot .content h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 16px 0 12px 0;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.chat-row.bot .content h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 14px 0 10px 0;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.chat-row.bot .content h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 12px 0 8px 0;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.chat-row.bot .content h1:first-child,
+.chat-row.bot .content h2:first-child,
+.chat-row.bot .content h3:first-child {
+    margin-top: 0;
+}
+
+.chat-row.bot .content strong,
+.chat-row.bot .content b {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chat-row.bot .content em,
+.chat-row.bot .content i {
+    font-style: italic;
 }
 
 /* Smooth Typewriter Reveal */

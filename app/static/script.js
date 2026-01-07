@@ -28,6 +28,8 @@ landing.addEventListener('click', () => {
     clone.style.left = startRect.left + 'px';
     clone.style.margin = '0';
     clone.style.zIndex = '1000';
+    clone.style.color = '#ffffff';
+    clone.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4)';
     document.body.appendChild(clone);
 
     // Fade out landing and show chat
@@ -35,40 +37,153 @@ landing.addEventListener('click', () => {
     firstName.style.opacity = '0';
     wrapper.classList.remove('blurred');
 
-    // Animate move to top right
-    clone.animate([
-        { top: startRect.top + 'px', left: startRect.left + 'px', fontSize: '2.5rem' },
-        { top: endRect.top + 'px', left: endRect.left + 'px', fontSize: '1.2rem' }
+    // Animate move to top right with smooth easing
+    const animation = clone.animate([
+        { 
+            top: startRect.top + 'px', 
+            left: startRect.left + 'px', 
+            fontSize: '3rem',
+            opacity: 1
+        },
+        { 
+            top: endRect.top + 'px', 
+            left: endRect.left + 'px', 
+            fontSize: '1.2rem',
+            opacity: 0
+        }
     ], {
-        duration: 900,
-        easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        duration: 850,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         fill: 'forwards'
-    }).onfinish = () => {
+    });
+
+    // Start fading in target near the end of animation for seamless transition
+    setTimeout(() => {
+        headerTarget.classList.add('visible');
         headerTarget.style.opacity = '1';
+    }, 700);
+
+    // Clean up after animation completes
+    animation.onfinish = () => {
         clone.remove();
         userInput.focus();
     };
 });
 
-// 2. Typewriter Effect (Fixed Wrapping)
-async function typeWriter(element, text, speed = 10) {
-    element.innerHTML = '';
-    let i = 0;
-
-    function type() {
-        if (i < text.length) {
-            const char = text.charAt(i);
-            const span = document.createElement('span');
-            span.classList.add('typing-char');
-            span.innerText = char;
-            element.appendChild(span);
-            i++;
-            chatbox.scrollTop = chatbox.scrollHeight;
-            setTimeout(type, speed);
+// 2. Markdown Parser
+function parseMarkdown(text) {
+    // Split by lines to handle headers properly
+    const lines = text.split('\n');
+    const processedLines = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        
+        // Headers: # Header, ## Subheader, ### Sub-subheader
+        if (line.match(/^###\s+(.+)$/)) {
+            line = line.replace(/^###\s+(.+)$/, '<h3>$1</h3>');
+            processedLines.push(line);
+        } else if (line.match(/^##\s+(.+)$/)) {
+            line = line.replace(/^##\s+(.+)$/, '<h2>$1</h2>');
+            processedLines.push(line);
+        } else if (line.match(/^#\s+(.+)$/)) {
+            line = line.replace(/^#\s+(.+)$/, '<h1>$1</h1>');
+            processedLines.push(line);
+        } else if (line.trim() === '') {
+            // Empty lines become line breaks (but skip if previous was header)
+            if (i > 0 && !processedLines[processedLines.length - 1].match(/^<h[1-3]>/)) {
+                processedLines.push('<br>');
+            }
         } else {
-            isThinking = false;
+            processedLines.push(line);
         }
     }
+    
+    let html = processedLines.join('\n');
+    
+    // Bold: **text** or __text__ (process bold first to avoid conflicts)
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    
+    // Italic: *text* or _text_ (process after bold)
+    // Match single asterisks/underscores that aren't part of HTML tags or double markdown
+    html = html.replace(/([^*]|^)\*([^*\n<]+?)\*([^*]|$)/g, '$1<em>$2</em>$3');
+    html = html.replace(/([^_]|^)_([^_\n<]+?)_([^_]|$)/g, '$1<em>$2</em>$3');
+    
+    // Convert remaining line breaks to <br>
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
+}
+
+// 3. Typewriter Effect with Markdown Support
+async function typeWriter(element, text, speed = 10) {
+    element.innerHTML = '';
+    
+    // Parse markdown to HTML first
+    const htmlContent = parseMarkdown(text);
+    
+    // Create a temporary container to work with
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    
+    // Extract all text content with structure
+    function getTextNodes(node) {
+        const result = [];
+        
+        function traverse(n) {
+            if (n.nodeType === Node.TEXT_NODE) {
+                const text = n.textContent;
+                for (let i = 0; i < text.length; i++) {
+                    result.push({ type: 'char', char: text[i] });
+                }
+            } else if (n.nodeType === Node.ELEMENT_NODE) {
+                result.push({ type: 'open', tag: n.tagName.toLowerCase() });
+                for (let child of n.childNodes) {
+                    traverse(child);
+                }
+                result.push({ type: 'close', tag: n.tagName.toLowerCase() });
+            }
+        }
+        
+        traverse(node);
+        return result;
+    }
+    
+    const tokens = getTextNodes(tempDiv);
+    let tokenIndex = 0;
+    const elementStack = [element];
+    
+    function type() {
+        if (tokenIndex >= tokens.length) {
+            isThinking = false;
+            return;
+        }
+        
+        const token = tokens[tokenIndex];
+        const currentElement = elementStack[elementStack.length - 1];
+        
+        if (token.type === 'open') {
+            const newElement = document.createElement(token.tag);
+            currentElement.appendChild(newElement);
+            elementStack.push(newElement);
+            tokenIndex++;
+            type();
+        } else if (token.type === 'close') {
+            elementStack.pop();
+            tokenIndex++;
+            type();
+        } else if (token.type === 'char') {
+            const span = document.createElement('span');
+            span.classList.add('typing-char');
+            span.textContent = token.char;
+            currentElement.appendChild(span);
+            tokenIndex++;
+            chatbox.scrollTop = chatbox.scrollHeight;
+            setTimeout(type, speed);
+        }
+    }
+    
     type();
 }
 

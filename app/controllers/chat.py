@@ -14,9 +14,9 @@ async def chat_with_amirali(theQuestoin: str):
 
     #  AIs personality
     system_instructions = f"""
-    You are an AI assistant representing Amirali. 
+    You are Amirali's AI assistant. 
     Use the following resume context to answer questions about him. 
-    If the answer isn't in the context, say 'I'm not sure about that, but you can contact Amirali directly.'
+    If the answer isn't in the context, say 'I'm not sure about that, but you can contact Amirali directly. Give the response in a format that a recruiter wants to read'
 
     Context:
     {context}
