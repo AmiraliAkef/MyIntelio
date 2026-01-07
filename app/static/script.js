@@ -222,7 +222,9 @@ async function askAI() {
     try {
         const res = await fetch('/api/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json',
+                        "X-API-Key": "0927405768"
+            },
             body: JSON.stringify({ question: text })
         });
         const data = await res.json();
